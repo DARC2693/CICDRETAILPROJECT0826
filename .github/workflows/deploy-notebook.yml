@@ -374,6 +374,76 @@ jobs:
           exit 1
         fi
     
+    - name: Execute Workflow WF_RETAIL_MEDALLION
+      run: |
+        DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
+        DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
+        WORKFLOW_NAME="WF_RETAIL_MEDALLION"
+
+        workflows_list=$(curl -s -X GET -H "Authorization: Bearer $DEST_TOKEN" "$DEST_HOST/api/2.1/jobs/list")
+        job_id=$(echo "$workflows_list" | jq -r --arg name "$WORKFLOW_NAME" '.jobs[]? | select(.settings.name == $name) | .job_id')
+
+        if [ "$job_id" = "" ] || [ "$job_id" = "null" ]; then
+          echo "❌ No se encontró el job para ejecutar"
+          exit 1
+        fi
+
+        echo "▶️ Ejecutando el Job $job_id..."
+        run_response=$(curl -s -X POST \
+          -H "Authorization: Bearer $DEST_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "{\"job_id\": $job_id}" \
+          "$DEST_HOST/api/2.1/jobs/run-now")
+        echo "Run response: $run_response"
+
+        run_id=$(echo "$run_response" | jq -r '.run_id')
+        if [ "$run_id" = "" ] || [ "$run_id" = "null" ]; then
+          echo "❌ Error al ejecutar el workflow"
+          exit 1
+        fi
+        echo "✅ Ejecución disparada con run_id: $run_id"
+        echo "RUN_ID=$run_id" >> $GITHUB_ENV
+
+    - name: Monitor Workflow Execution
+      run: |
+        DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
+        DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
+        RUN_ID="${{ env.RUN_ID }}"
+        max_wait_time=1800
+        wait_time=0
+        check_interval=30
+
+        echo "⏳ Monitoreando ejecución (timeout: ${max_wait_time}s)..."
+        while [ $wait_time -lt $max_wait_time ]; do
+          run_status=$(curl -s -X GET \
+            -H "Authorization: Bearer $DEST_TOKEN" \
+            "$DEST_HOST/api/2.1/jobs/runs/get?run_id=$RUN_ID")
+
+          state=$(echo "$run_status" | jq -r '.state.life_cycle_state')
+          result_state=$(echo "$run_status" | jq -r '.state.result_state // "RUNNING"')
+          echo "Estado: $state ($result_state) - ${wait_time}s transcurridos"
+          echo "$run_status" | jq -r '.tasks[]? | "  " + .task_key + ": " + .state.life_cycle_state + " (" + (.state.result_state // "RUNNING") + ")"'
+
+          if [ "$state" = "TERMINATED" ]; then
+            if [ "$result_state" = "SUCCESS" ]; then
+              echo "✅ Workflow completado exitosamente"
+              exit 0
+            else
+              echo "❌ Workflow terminó con errores: $result_state"
+              exit 1
+            fi
+          elif [ "$state" = "INTERNAL_ERROR" ] || [ "$state" = "SKIPPED" ]; then
+            echo "❌ Workflow falló con estado: $state"
+            exit 1
+          fi
+
+          sleep $check_interval
+          wait_time=$((wait_time + check_interval))
+        done
+
+        echo "⏱️ Timeout esperando el workflow - revisa manualmente en Databricks"
+        exit 1
+
     - name: Clean up
       run: |
         rm -rf notebooks_to_deploy
