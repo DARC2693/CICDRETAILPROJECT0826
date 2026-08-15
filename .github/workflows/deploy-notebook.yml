@@ -87,7 +87,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        CLUSTER_NAME="ClusterRP"
+        CLUSTER_NAME="Cluster_RP"
         
         echo "Buscando cluster existente: $CLUSTER_NAME"
         
@@ -284,7 +284,7 @@ jobs:
             "environment": "production",
             "created_by": "github_actions",
             "project": "automated_deployment",
-            "cluster_used": "ClusterRP"
+            "cluster_used": "Cluster_RP"
           }
         }
         EOF
@@ -349,7 +349,7 @@ jobs:
           echo ""
           echo "🖥️  Cluster configurado:"
           echo "Cluster ID: $(echo "$job_details" | jq -r '.settings.tasks[0].existing_cluster_id')"
-          echo "Cluster Name: ClusterRP (reutilizado)"
+          echo "Cluster Name: Cluster_RP (reutilizado)"
           
         else
           echo "❌ No se pudo encontrar el workflow creado"
@@ -371,6 +371,6 @@ jobs:
         echo "Tareas configuradas:"
         echo "   - tarea1_notebook1 (ntbk_1)"
         echo "   - tarea2_notebook2 (ntbk_2)"
-        echo "Cluster existente: ClusterRP configurado"
+        echo "Cluster existente: Cluster_RP configurado"
         echo ""
         echo "🔗 Accede a tu workspace de Databricks para ver el workflow en la sección 'Workflows'"
