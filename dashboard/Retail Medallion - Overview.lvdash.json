@@ -1,0 +1,530 @@
+{
+  "datasets": [
+    {
+      "name": "701fa994",
+      "displayName": "kpi_summary",
+      "queryLines": [
+        "--- Dataset 1: kpi_summary (para 3 tarjetas KPI) ---\r\n",
+        "SELECT\r\n",
+        "  SUM(total_sales)  AS total_sales,\r\n",
+        "  SUM(total_profit) AS total_profit,\r\n",
+        "  SUM(num_orders)   AS total_orders\r\n",
+        "FROM retail_medallion.golden.agg_sales_by_category_month;"
+      ]
+    },
+    {
+      "name": "198eb324",
+      "displayName": "sales_trend_by_channel",
+      "queryLines": [
+        "--- Dataset 2: sales_trend_by_channel (línea, tendencia mensual) ---\r\n",
+        "SELECT year_month, source_system, SUM(total_sales) AS total_sales\r\n",
+        "FROM retail_medallion.golden.agg_sales_by_category_month\r\n",
+        "GROUP BY year_month, source_system\r\n",
+        "ORDER BY year_month;"
+      ]
+    },
+    {
+      "name": "c48cd78b",
+      "displayName": "sales_by_category",
+      "queryLines": [
+        "--- Dataset 3: sales_by_category (barras, top categorías) ---\r\n",
+        "SELECT category, source_system, SUM(total_sales) AS total_sales\r\n",
+        "FROM retail_medallion.golden.agg_sales_by_category_month\r\n",
+        "GROUP BY category, source_system\r\n",
+        "ORDER BY total_sales DESC;"
+      ]
+    },
+    {
+      "name": "5abfff60",
+      "displayName": "holiday_comparison",
+      "queryLines": [
+        "--- Dataset 4: holiday_comparison (barras, feriado vs normal) ---\r\n",
+        "SELECT\r\n",
+        "  CASE WHEN is_holiday THEN 'Feriado' ELSE 'Día normal' END AS tipo_dia,\r\n",
+        "  source_system,\r\n",
+        "  SUM(total_sales) AS total_sales,\r\n",
+        "  AVG(avg_order_value) AS avg_order_value\r\n",
+        "FROM retail_medallion.golden.agg_sales_by_holiday\r\n",
+        "GROUP BY is_holiday, source_system;"
+      ]
+    },
+    {
+      "name": "e54e9a58",
+      "displayName": "marketing_roi_trend",
+      "queryLines": [
+        "--- Dataset 5: marketing_roi_trend (línea, solo e-commerce) ---\r\n",
+        "SELECT year_month, category, roi, total_marketing_spend, total_sales\r\n",
+        "FROM retail_medallion.golden.ecommerce_marketing_roi\r\n",
+        "ORDER BY year_month;"
+      ]
+    },
+    {
+      "name": "fe14b9ae",
+      "displayName": "sales_by_region",
+      "queryLines": [
+        "--- Dataset 6: sales_by_region (barras, solo Superstore) ---\r\n",
+        "SELECT region, SUM(sales_amount) AS total_sales, SUM(profit_amount) AS total_profit\r\n",
+        "FROM retail_medallion.golden.fact_sales\r\n",
+        "GROUP BY region\r\n",
+        "ORDER BY total_sales DESC;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "44657fe4",
+      "displayName": "Untitled page",
+      "layout": [
+        {
+          "widget": {
+            "name": "ve",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "701fa994",
+                  "fields": [
+                    {
+                      "name": "sum(total_sales)",
+                      "expression": "SUM(`total_sales`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Ventas Totales"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_sales)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "ganancia-total",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "701fa994",
+                  "fields": [
+                    {
+                      "name": "sum(total_profit)",
+                      "expression": "SUM(`total_profit`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Ganancia Total"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_profit)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "sf",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "701fa994",
+                  "fields": [
+                    {
+                      "name": "sum(total_orders)",
+                      "expression": "SUM(`total_orders`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Órdenes Totales"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_orders)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "tendencia-ventas-canal",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "198eb324",
+                  "fields": [
+                    {
+                      "name": "source_system",
+                      "expression": "`source_system`"
+                    },
+                    {
+                      "name": "year_month",
+                      "expression": "`year_month`"
+                    },
+                    {
+                      "name": "sum(total_sales)",
+                      "expression": "SUM(`total_sales`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Tendencia de Ventas por Canal"
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year_month",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_sales)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "source_system",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 4,
+            "width": 9,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "ventas-por-categor",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c48cd78b",
+                  "fields": [
+                    {
+                      "name": "source_system",
+                      "expression": "`source_system`"
+                    },
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    },
+                    {
+                      "name": "sum(total_sales)",
+                      "expression": "SUM(`total_sales`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Ventas por Categoría"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_sales)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "source_system",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 12,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "ventas1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5abfff60",
+                  "fields": [
+                    {
+                      "name": "source_system",
+                      "expression": "`source_system`"
+                    },
+                    {
+                      "name": "tipo_dia",
+                      "expression": "`tipo_dia`"
+                    },
+                    {
+                      "name": "sum(total_sales)",
+                      "expression": "SUM(`total_sales`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Ventas: Feriado vs. Día Normal"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "tipo_dia",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_sales)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "source_system",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "roi",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "e54e9a58",
+                  "fields": [
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    },
+                    {
+                      "name": "year_month",
+                      "expression": "`year_month`"
+                    },
+                    {
+                      "name": "sum(roi)",
+                      "expression": "SUM(`roi`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "ROI de Marketing (E-commerce)"
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year_month",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(roi)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "ventas2",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fe14b9ae",
+                  "fields": [
+                    {
+                      "name": "region",
+                      "expression": "`region`"
+                    },
+                    {
+                      "name": "sum(total_sales)",
+                      "expression": "SUM(`total_sales`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Ventas por Región (Superstore)"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "region",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_sales)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 18,
+            "width": 3,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
