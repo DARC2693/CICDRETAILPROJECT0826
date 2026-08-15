@@ -115,7 +115,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/py/scripts/main"
+        DEST_BASE="/RetailProject0826"
         CLUSTER_ID="${{ env.CLUSTER_ID }}"
         
         echo "Creando workflow: WF_RETAIL_MEDALLION con cluster existente ID: $CLUSTER_ID"
@@ -130,7 +130,7 @@ jobs:
               "task_key": "prepamb",
               "description": "Ejecuta notebook 00_prepamb.py",
               "notebook_task": {
-                "notebook_path": "/retailproject/00_prepamb",
+                "notebook_path": "/RetailProject0826/00_prepamb",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "sql_file": "01_prepamb.sql",
@@ -146,7 +146,7 @@ jobs:
               "task_key": "ingest_superstore",
               "description": "Ejecuta notebook 01_ingest_superstore.py",
               "notebook_task": {
-                "notebook_path": "/retailproject/01_ingest_superstore",
+                "notebook_path": "/RetailProject0826/01_ingest_superstore",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "raw_path": "abfss://raw@adlsretailproject0826.dfs.core.windows.net/superstore/",
@@ -166,7 +166,7 @@ jobs:
               "task_key": "ingest_ecommerce",
               "description": "Ejecuta notebook 02_ingest_ecommerce.py",
               "notebook_task": {
-                "notebook_path": "/retailproject/02_ingest_ecommerce",
+                "notebook_path": "/RetailProject0826/02_ingest_ecommerce",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "raw_path": "abfss://raw@adlsretailproject0826.dfs.core.windows.net/ecommerce/",
@@ -186,7 +186,7 @@ jobs:
               "task_key": "ingest_calendar",
               "description": "Ejecuta notebook 03_ingest_calendar.py",
               "notebook_task": {
-                "notebook_path": "/retailproject/03_ingest_calendar",
+                "notebook_path": "/RetailProject0826/03_ingest_calendar",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "raw_path": "abfss://raw@adlsretailproject0826.dfs.core.windows.net/calendar/",
@@ -206,7 +206,7 @@ jobs:
               "task_key": "transform",
               "description": "Ejecuta notebook 04_transform.py",
               "notebook_task": {
-                "notebook_path": "/retailproject/04_transform",
+                "notebook_path": "/RetailProject0826/04_transform",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "catalogo": "retail_medallion"
@@ -231,7 +231,7 @@ jobs:
               "task_key": "load",
               "description": "Ejecuta notebook 05_load.py",
               "notebook_task": {
-                "notebook_path": "/retailproject/05_load",
+                "notebook_path": "/RetailProject0826/05_load",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "catalogo": "retail_medallion"
@@ -250,7 +250,7 @@ jobs:
               "task_key": "grants",
               "description": "Ejecuta notebook 06_grants.py",
               "notebook_task": {
-                "notebook_path": "/retailproject/06_grants",
+                "notebook_path": "/RetailProject0826/06_grants",
                 "source": "WORKSPACE",
                 "base_parameters": {
                   "sql_file": "01_grants.sql",
